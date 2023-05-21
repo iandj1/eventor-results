@@ -1,0 +1,215 @@
+body {
+  background:#fff;
+  margin: 0;
+  padding: 50px;
+}
+h1 {
+  font-family: sans-serif;
+  font-size: 15pt;
+}
+
+h2 {
+  font-family: sans-serif;
+}
+
+h3 {
+  font-family: sans-serif;
+  padding-top: 20px;
+}
+
+p {
+  font-family: sans-serif;
+  font-size: 9pt;
+}
+
+p.cell {
+  margin-block-start: 0px;
+  margin-block-end: 0px;
+  font-size: 7pt;
+}
+
+a {
+  font-family: sans-serif;
+  font-size: 9pt;
+}
+
+img {
+  padding-right: 50px;
+}
+
+.eventinfo {
+  font-size: 11pt;
+}
+
+tr.OK {
+  /*background-color: #FAFFFA; */
+}
+
+th {
+  height: 25px;
+}
+
+/* .not-ok {
+  background-color: #FFFAFA;
+} */
+
+table tr.not-ok:nth-child(even) td{
+  background: #ffeeee !important;
+}
+table tr.not-ok:nth-child(even) th{
+  background: #ffeeee !important;
+}
+table tr.not-ok:nth-child(odd) td{
+  background: #fff6f6 !important;
+}
+table tr.not-ok:nth-child(odd) th{
+  background: #fff6f6 !important;
+}
+
+table tr.OK:nth-child(even) td{
+  background: #fafaff !important;
+}
+table tr.OK:nth-child(even) th{
+  background: #fafaff !important;
+}
+table tr.OK:nth-child(odd) td{
+  background: #FFFFFF !important;
+}
+table tr.OK:nth-child(odd) th{
+	background: #FFFFFF !important;
+}
+
+td.Finish {
+  background-color: #FFFFFF;
+  font-weight: bolder;
+
+}
+
+div.results {
+  font-family: sans-serif;
+  font-size: 7pt;
+  /*width: 100%;*/
+}
+
+div.results table{
+  width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+  font-family: sans-serif;
+  font-size: 7pt;
+  margin:0 0 15px;
+  table-layoutXX: fixed;
+  text-align: left;
+}
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  background: white;
+}
+.col1 {
+  left: 0px;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  padding: 0 0 0 10px;
+  z-index: 10;
+}
+.col2 {
+  left: 30px;
+  /* width: 100px; */
+  min-width: 100px;
+  max-width: 200px;
+  z-index: 10;
+}
+
+.blank {
+  z-index: 20;
+}
+
+.header-row {
+  padding: 4px 4px;
+  /* border-bottom: 1px solid darkgrey; */
+}
+
+.header-col {
+  padding: 0px 4px;
+}
+
+.classHeader {
+  font-size: 16pt;
+  font-weight: bolder;
+  text-shadow: AAA 1pt 1pt;
+}
+
+.classResult {
+  border-bottom: 1px solid #EEE;
+  line-height: 1.4em;
+  white-space: nowrap;
+}
+
+.classResult td {
+  width: 37px;
+}
+
+.s {
+  color: black;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.rPos,.sPos {
+  position: relative;
+  top: -0.3em;
+  font-size: 70%;
+  /*line-height: 0px;*/
+  font-weight: lighter;
+  float: right;
+}
+
+.r {
+  color: #666;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+
+
+.r1 {
+  /* Winning split */
+  font-weight: bolder;
+  color: #e64d4d;
+}
+
+.r2 {
+  /* Second split */
+  font-weight: bold;
+  /* background-color: #FFA540; */
+}
+
+.r3 {
+  /* Third split */
+  font-weight: bold;
+  /* background-color:#FFBD73; */
+}
+
+.s1 {
+  /* Winning split */
+  font-weight: bolder;
+  color:  #0000ff;
+}
+
+.s2 {
+  /* Second split */
+  font-weight: bold;
+  /* background-color: #4380D3; */
+}
+
+.s3 {
+  /* Third split */
+  font-weight: bold;
+  /* background-color:#6996D3; */
+}

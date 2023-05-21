@@ -1,0 +1,74 @@
+= content_for(:title, "Results | #{@event.name}")
+=image_tag "OACT-Logo.svg", size: "150x150", align: "left"
+%h1= @event.name
+%p= @event.date.to_fs(:full_date)
+%p= "Total Participants: #{@event.results.count}"
+%p=link_to "Results on Eventor", "#{EVENTOR_URL}/Events/ResultList?eventId=#{@event.eventor_id}"
+%p=link_to "Event Info on Eventor", "#{EVENTOR_URL}/Events/Show/#{@event.eventor_id}"
+
+- if @by_class
+  %p
+    ="Results by Class | "
+    %a= link_to "Results by Course"
+- else
+  %p
+    %a= link_to "Results by Class", results_path(by_class: true)
+    =" | Results by Course"
+
+%br{clear: "left"}
+
+- @results_tables.each do |course_name, results|
+  %h2= course_name
+  %p= "Entries: #{results[:valid].count+results[:invalid].count}"
+  - if @course_lengths[course_name].present?
+    %p= "Length: #{@course_lengths[course_name].to_f/1000} km"
+
+  %table.evt-results
+    %tbody
+      - if @control_sequences[course_name].length > 0
+        %tr
+          %th.sticky.header-row.col1.blank
+          %th.sticky.header-row.col2.blank
+          %th.sticky.header-row.blank{colspan: 2}
+          - @control_sequences[course_name][0...-1].each_with_index do |leg, leg_number|
+            %th.sticky.header-row
+              %p.cell= "#{leg_number+1}"
+              %p.cell= leg
+          %th.sticky.header-row
+            %br
+            %p.cell F
+          %th.sticky.blank{colspan: 99}
+
+      -# valid results
+      - results[:valid].each_with_index do |result, index|
+        %tr.classResult.OK
+          %th.col1.sticky= index + 1
+          %th.header-col.personName.sticky.col2= result[:name]
+          %th.header-col= result[:club]
+          %th.header-col= format_time(result[:time])
+          - result[:splits].each do |split|
+            %td
+              -place = split[:cumulative_time][:place]
+              %div{class: "r r#{place}"}="#{format_time(split[:cumulative_time][:time])}#{place.nil? ? '' : ' ('+place.to_s+')'}"
+              -place = split[:interval][:place]
+              %div{class: "s s#{place}"}="#{format_time(split[:interval][:time])}#{place.nil? ? '' : ' ('+place.to_s+')'}"
+          - result[:extras].each do |extra|
+            %td
+              %div.r=extra["control"]
+              %div.s=format_time(extra["time"])
+
+      -# invalid results
+      - results[:invalid].each do |result|
+        %tr.classResult.not-ok
+          %th.header-col.sticky.col1
+          %th.header-col.personName.sticky.col2= result[:name]
+          %th.header-col= result[:club]
+          %th.header-col= result[:status]
+          - result[:splits].each do |split|
+            %td
+              %div.r=format_time(split[:cumulative_time])
+              %div.s=format_time(split[:interval])
+          - result[:extras].each do |extra|
+            %td
+              %div.r=extra["control"]
+              %div.s=format_time(extra["time"])

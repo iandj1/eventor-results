@@ -20,7 +20,7 @@ class Result < ApplicationRecord
       club: result_hash.dig("Organisation", "ShortName"),
       time: time,
       status: STATUS_MAP[status] || status,
-      splits: process_splits(result_hash.dig("Result", "SplitTime"), time).to_json,
+      splits: process_splits(result_hash.dig("Result", "SplitTime"), time),
       gender: result_hash.dig("Person", "sex"),
       age_range: birth_date && get_age_class(birth_date, course.event.date),
       start_time: result_hash.dig("Result", "StartTime")
@@ -28,22 +28,17 @@ class Result < ApplicationRecord
     @result
   end
 
-  def get_splits
-    JSON.parse(splits)
-  end
-
   def self.get_results_table
     valid_results = []
     invalid_results = []
 
     splits = self.where(status: "OK").pluck(:splits)
-    splits.map!{|spl| JSON.parse(spl)["splits"]}
+    splits.map!{|spl| spl["splits"]}
     split_placings, cumulative_placings = get_split_placings(splits)
 
     self.where(status: "OK").order(:time).each do |result|
       splits = [] # {control, cumulative_time: {time:, place}, interval: {time, place}}
-      json_splits = JSON.parse(result.splits)
-      json_splits["splits"].each_with_index do |split, leg|
+      result.splits["splits"].each_with_index do |split, leg|
         splits << {
           control: split["control"],
           cumulative_time: {time: split["time"], place: cumulative_placings[leg][split["time"]]},
@@ -55,14 +50,13 @@ class Result < ApplicationRecord
         time: result.time,
         club: result.club,
         splits: splits,
-        extras: json_splits["extras"]
+        extras: result.splits["extras"]
       }
     end
 
     self.where.not(status: "OK").order(:time).each do |result|
       splits = [] # {control, cumulative_time: {time:, place}, interval: {time, place}}
-      json_splits = result.get_splits
-      json_splits["splits"].each do |split|
+      result.splits["splits"].each do |split|
         splits << {
           control: split["control"],
           cumulative_time: split["time"],
@@ -74,7 +68,7 @@ class Result < ApplicationRecord
         status: result.status,
         club: result.club,
         splits: splits,
-        extras: json_splits["extras"],
+        extras: result.splits["extras"],
         finish_time: result.time
       }
     end

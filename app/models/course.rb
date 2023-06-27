@@ -20,7 +20,7 @@ class Course < ApplicationRecord
 
   def control_sequence
     results.each do |result|
-      splits = result.get_splits["splits"]
+      splits = result.splits["splits"]
       next if splits.empty?
       return splits.map{|split| split["control"]}
     end

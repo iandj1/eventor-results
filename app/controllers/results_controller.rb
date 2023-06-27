@@ -10,7 +10,13 @@ class ResultsController < ApplicationController
     if @eventor_id.to_i.to_s != @eventor_id
       raise ActionController::RoutingError.new('Not Found')
     end
-    if not @event = Event.find_by(eventor_id: params[:eventor_id])
+    @event = Event.find_by(eventor_id: params[:eventor_id])
+    if @event && params[:resetcache] == "yes"
+      @event.destroy
+      redirect_to params.permit(:by_class)
+      return
+    end
+    if not @event
       @event = Event.load_from_eventor(@eventor_id)
     end
     courses = @event.courses

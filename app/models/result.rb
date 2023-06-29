@@ -9,6 +9,9 @@ class Result < ApplicationRecord
     "DidNotStart" => "DNS"
   }
 
+  # descriptions of statuses built from STATUS_MAP, with spaces added for readability
+  STATUS_LOOKUP = STATUS_MAP.invert.transform_values{ |description| description.gsub(/([a-z])([A-Z])/, '\1 \2') }
+
   def self.create_from_hash(course, result_hash)
     name = result_hash.dig("Person", "Name", "Given").to_s + " " + result_hash.dig("Person", "Name", "Family").to_s
     birth_date = result_hash.dig("Person", "BirthDate")

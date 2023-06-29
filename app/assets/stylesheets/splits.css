@@ -67,16 +67,26 @@ table tr.not-ok:nth-child(odd) th{
 }
 
 table tr.OK:nth-child(even) td{
-  background: #fafaff !important;
+  background: #f4f6ff !important;
 }
 table tr.OK:nth-child(even) th{
-  background: #fafaff !important;
+  background: #f4f6ff !important;
 }
 table tr.OK:nth-child(odd) td{
   background: #FFFFFF !important;
 }
 table tr.OK:nth-child(odd) th{
 	background: #FFFFFF !important;
+}
+
+table th.extras-column{
+  border-left: solid 1px #DDD;
+  padding-left: 10px;
+}
+table td.extras-column{
+  border-left: solid 1px #DDD;
+  padding: 0px;
+  width: 0px;
 }
 
 td.Finish {
@@ -131,6 +141,7 @@ table {
 }
 
 .header-row {
+  border-bottom: 1px solid #EEE;
   padding: 4px 4px;
   /* border-bottom: 1px solid darkgrey; */
 }
@@ -212,4 +223,43 @@ table {
   /* Third split */
   font-weight: bold;
   /* background-color:#6996D3; */
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: max-content;
+  background-color: rgba(0, 0, 0, 0.666);
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border-radius: 6px;
+
+  position: absolute;
+  z-index: 50;
+  top: 150%;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent rgba(0, 0, 0, 0.666) transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }

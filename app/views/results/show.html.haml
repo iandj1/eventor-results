@@ -37,7 +37,11 @@
           %th.sticky.header-row
             %br
             %p.cell F
-          %th.sticky.blank{colspan: 99}
+          - extra_punches = (results[:valid]+results[:invalid]).any? { |result| result[:extras].present? }
+          - if extra_punches
+            %th.sticky.header-row.extras-column{colspan: 99}
+              %p.cell extra
+              %p.cell punches
 
       -# valid results
       - results[:valid].each_with_index do |result, index|
@@ -52,6 +56,8 @@
               %div{class: "r r#{place}"}="#{format_time(split[:cumulative_time][:time])}#{place.nil? ? '' : ' ('+place.to_s+')'}"
               -place = split[:interval][:place]
               %div{class: "s s#{place}"}="#{format_time(split[:interval][:time])}#{place.nil? ? '' : ' ('+place.to_s+')'}"
+          - if extra_punches
+            %td.extras-column
           - result[:extras].each do |extra|
             %td
               %div.r=extra["control"]
@@ -63,11 +69,16 @@
           %th.header-col.sticky.col1
           %th.header-col.personName.sticky.col2= result[:name]
           %th.header-col= result[:club]
-          %th.header-col= result[:status]
+          %th.header-col
+            .tooltip
+              =result[:status]
+              .tooltiptext= Result::STATUS_LOOKUP[result[:status]] || result[:status]
           - result[:splits].each do |split|
             %td
               %div.r=format_time(split[:cumulative_time])
               %div.s=format_time(split[:interval])
+          - if extra_punches && result[:splits].present?
+            %td.extras-column
           - result[:extras].each do |extra|
             %td
               %div.r=extra["control"]

@@ -289,7 +289,7 @@ DEPENDENCIES
   bootsnap
   byebug (~> 11.1, >= 11.1.3)
   capybara
-  csv
+  csv (~> 3.2, >= 3.2.7)
   debug
   dockerfile-rails (>= 1.3)
   haml (~> 6.1, >= 6.1.1)
@@ -300,6 +300,7 @@ DEPENDENCIES
   pg (~> 1.1)
   puma (~> 5.0)
   rails (~> 7.0.4, >= 7.0.4.3)
+  rexml (~> 3.2, >= 3.2.5)
   selenium-webdriver
   solargraph
   sprockets-rails

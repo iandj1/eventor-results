@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_05_06_112750) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_16_052924) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,8 +34,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_06_112750) do
 
   create_table "results", force: :cascade do |t|
     t.bigint "course_id"
-    t.string "name"
-    t.string "club"
     t.integer "time"
     t.string "status"
     t.json "splits"
@@ -44,6 +42,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_06_112750) do
     t.datetime "start_time"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "organisation"
+    t.integer "age"
+    t.integer "eventor_id"
+    t.string "given_name"
+    t.string "family_name"
     t.index ["age_range"], name: "index_results_on_age_range"
     t.index ["course_id"], name: "index_results_on_course_id"
     t.index ["gender"], name: "index_results_on_gender"

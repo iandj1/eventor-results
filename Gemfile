@@ -51,6 +51,7 @@ gem "bootsnap", require: false
 gem 'haml', '~> 6.1', '>= 6.1.1'
 gem "haml-rails", "~> 2.0"
 gem 'open-uri', '~> 0.3.0'
+gem 'csv'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -69,6 +70,7 @@ group :development do
 
   gem 'solargraph'
   gem 'byebug', '~> 11.1', '>= 11.1.3'
+  gem"dockerfile-rails", ">= 1.3"
 end
 
 group :test do

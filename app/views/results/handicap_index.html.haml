@@ -1,0 +1,18 @@
+= content_for(:title, "Handicap Results | #{@event.name}")
+%h1= @event.name
+
+= form_with(url: handicap_download_path, method: :get, html: {"data-turbo": "false"}) do |f|
+  = f.collection_check_boxes(:course, @event.courses.order(:name), :id, :name) do |b|
+    = b.check_box + b.label
+    %br
+  %br
+  =f.label 'format'
+  %br
+  = f.radio_button 'format', 'csv', required: true
+  = f.label 'format_csv', 'CSV'
+  %br
+  = f.radio_button 'format', 'xml'
+  = f.label 'format_xml', 'Eventor XML'
+  %br
+  %br
+  = f.submit "Download"

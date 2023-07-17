@@ -9,23 +9,35 @@ class Result < ApplicationRecord
     "DidNotStart" => "DNS"
   }
 
+  handicaps = {}
+  CSV.read("al_handicap_factors.csv", headers: true).each do |row|
+    age = row["Age"].to_i
+    handicaps[age] ||= {}
+    handicaps[age]["M"]  = row["M"].to_f
+    handicaps[age]["F"]  = row["F"].to_f
+  end
+  AL_HANDICAPS = handicaps
+
   # descriptions of statuses built from STATUS_MAP, with spaces added for readability
   STATUS_LOOKUP = STATUS_MAP.invert.transform_values{ |description| description.gsub(/([a-z])([A-Z])/, '\1 \2') }
 
   def self.create_from_hash(course, result_hash)
-    name = result_hash.dig("Person", "Name", "Given").to_s + " " + result_hash.dig("Person", "Name", "Family").to_s
     birth_date = result_hash.dig("Person", "BirthDate")
     time = result_hash.dig("Result", "Time")&.to_i
     status = result_hash.dig("Result", "Status")
+    age = birth_date && get_age(birth_date, course.event.date)
     @result = Result.create(
+      eventor_id: result_hash.dig("Person", "Id"),
       course: course,
-      name: name,
-      club: result_hash.dig("Organisation", "ShortName"),
+      given_name: result_hash.dig("Person", "Name", "Given"),
+      family_name: result_hash.dig("Person", "Name", "Family"),
+      organisation: result_hash["Organisation"],
       time: time,
       status: STATUS_MAP[status] || status,
       splits: process_splits(result_hash.dig("Result", "SplitTime"), time),
       gender: result_hash.dig("Person", "sex"),
-      age_range: birth_date && get_age_class(birth_date, course.event.date),
+      age: age,
+      age_range: birth_date && get_age_class(age),
       start_time: result_hash.dig("Result", "StartTime")
     )
     @result
@@ -51,7 +63,7 @@ class Result < ApplicationRecord
       valid_results << {
         name: result.name,
         time: result.time,
-        club: result.club,
+        club: result.organisation&.dig("ShortName"),
         splits: splits,
         extras: result.splits["extras"]
       }
@@ -69,7 +81,7 @@ class Result < ApplicationRecord
       invalid_results << {
         name: result.name,
         status: result.status,
-        club: result.club,
+        club: result.organisation&.dig("ShortName"),
         splits: splits,
         extras: result.splits["extras"],
         finish_time: result.time
@@ -84,6 +96,23 @@ class Result < ApplicationRecord
     end
 
     return {valid: valid_results, invalid: invalid_results}
+  end
+
+  def pace
+    distance = self.course.distance.to_f / 1000
+    return (time.to_f / distance).round(6)
+  end
+
+  def handicap
+    return AL_HANDICAPS.dig(age, gender) || 1
+  end
+
+  def handicap_pace
+    return (self.pace * self.handicap).round(6)
+  end
+
+  def name
+    return "#{given_name} #{family_name}"
   end
 
   private
@@ -120,11 +149,14 @@ class Result < ApplicationRecord
     return split_placings, cumulative_placings
   end
 
-  def self.get_age_class(birth_date, event_date)
+  def self.get_age(birth_date, event_date)
     return nil if birth_date.nil?
     event_year = event_date.year
     birth_year = birth_date.to_date.year
-    age = event_year - birth_year
+    event_year - birth_year
+  end
+
+  def self.get_age_class(age)
     case age
     when 0..20
       then "Junior"

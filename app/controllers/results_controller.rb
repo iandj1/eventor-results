@@ -88,7 +88,7 @@ class ResultsController < ApplicationController
             score = JUNIOR_LEAGUE_SCORING[course_name][placing - 1] || 1 # all finishers get 1 point
             csv << [
               age_class,
-              result.id,
+              result.eventor_id,
               result.name,
               result.organisation&.dig("Id"),
               result.organisation&.dig("Name"),

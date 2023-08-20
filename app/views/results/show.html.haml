@@ -44,9 +44,9 @@
               %p.cell punches
 
       -# valid results
-      - results[:valid].each_with_index do |result, index|
+      - results[:valid].each do |result|
         %tr.classResult.OK
-          %th.col1.sticky= index + 1
+          %th.col1.sticky= result[:place]
           %th.header-col.personName.sticky.col2= result[:name]
           %th.header-col= result[:club]
           %th.header-col= format_time(result[:time])

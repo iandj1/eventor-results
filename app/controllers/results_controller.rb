@@ -6,6 +6,8 @@ class ResultsController < ApplicationController
     "M" => "Men"
   }
 
+  JUNIOR_LEAGUE_SCORING = YAML::load(File.open('junior_league_scoring.yml'), aliases: true)
+
   def show
     courses = @event.courses
     @results_tables = {}
@@ -65,6 +67,38 @@ class ResultsController < ApplicationController
         send_data(stream, :type=>"text/xml", filename: "#{@event.name} - Handicap.xml")
       end
     end
+  end
+
+  def junior_league
+    csv_data = CSV.generate(col_sep: ";") do |csv|
+      @event.courses.each do |course|
+        GENDER_MAP.keys.each do |gender|
+          course_name = course.name.downcase
+          next if JUNIOR_LEAGUE_SCORING[course_name].nil? # this shouldn't be possible
+          results = course.results.where(status: "OK", age_range: "Junior", gender: gender).order(:time)
+          placing_map = results.placing_map
+          results.each do |result|
+            if result.age < 10
+              age = 10
+            else
+              age = ((result.age + 1) / 2) * 2
+            end
+            age_class = GENDER_MAP[gender][0] + age.to_s
+            placing = placing_map[result.time]
+            score = JUNIOR_LEAGUE_SCORING[course_name][placing - 1] || 1 # all finishers get 1 point
+            csv << [
+              age_class,
+              result.id,
+              result.name,
+              result.organisation["Id"],
+              result.organisation["Name"],
+              score
+            ]
+          end
+        end
+      end
+    end
+    send_data csv_data, filename: "#{@event.name} - Junior League Scores.csv"
   end
 
   private

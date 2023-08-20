@@ -51,7 +51,9 @@ class Result < ApplicationRecord
     splits.map!{|spl| spl["splits"]}
     split_placings, cumulative_placings = get_split_placings(splits)
 
-    self.where(status: "OK").order(:time).each do |result|
+    finishers = self.where(status: "OK")
+    placing_map = finishers.placing_map
+    finishers.order(:time).each do |result|
       splits = [] # {control, cumulative_time: {time:, place}, interval: {time, place}}
       result.splits["splits"].each_with_index do |split, leg|
         splits << {
@@ -61,6 +63,7 @@ class Result < ApplicationRecord
         }
       end
       valid_results << {
+        place: placing_map[result.time],
         name: result.name,
         time: result.time,
         club: result.organisation&.dig("ShortName"),
@@ -133,8 +136,7 @@ class Result < ApplicationRecord
     split_timings.each_with_index do |timings, leg|
       split_placings[leg] = {}
       timings.each_with_index do |time, index|
-        next if split_placings[leg][time]
-        split_placings[leg][time] = index + 1
+        split_placings[leg][time] ||= index + 1
       end
     end
     cumulative_timings.map!{|timings| timings.compact.sort}
@@ -142,11 +144,19 @@ class Result < ApplicationRecord
     cumulative_timings.each_with_index do |timings, leg|
       cumulative_placings[leg] = {}
       timings.each_with_index do |time, index|
-        next if cumulative_placings[leg][time]
-        cumulative_placings[leg][time] = index + 1
+        cumulative_placings[leg][time] ||= index + 1
       end
     end
     return split_placings, cumulative_placings
+  end
+
+  def self.placing_map
+    times = self.pluck(:time).sort
+    placing_map = {}
+    times.each_with_index do |time, index|
+      placing_map[time] ||= index + 1
+    end
+    placing_map
   end
 
   def self.get_age(birth_date, event_date)

@@ -90,8 +90,8 @@ class ResultsController < ApplicationController
               age_class,
               result.id,
               result.name,
-              result.organisation["Id"],
-              result.organisation["Name"],
+              result.organisation&.dig("Id"),
+              result.organisation&.dig("Name"),
               score
             ]
           end

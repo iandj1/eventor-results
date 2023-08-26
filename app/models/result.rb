@@ -151,7 +151,7 @@ class Result < ApplicationRecord
   end
 
   def self.placing_map
-    times = self.pluck(:time).sort
+    times = self.pluck(:time).sort_by { |value| value || Float::INFINITY } # nil time gets placed last
     placing_map = {}
     times.each_with_index do |time, index|
       placing_map[time] ||= index + 1

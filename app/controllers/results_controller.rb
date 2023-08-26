@@ -45,7 +45,7 @@ class ResultsController < ApplicationController
     puts params
     courses = @event.courses.find(params[:course].compact_blank)
     # results = Result.where(course: courses).to_a.sort_by!{ |result| result.handicap_pace }
-    @results = Result.where(course: courses, status: "OK").to_a.sort_by!{ |result| result.handicap_pace }
+    @results = Result.where(course: courses, status: "OK").where.not(time: nil).to_a.sort_by!{ |result| result.handicap_pace }
 
     # if params[:format] == "csv"
     respond_to do |format|

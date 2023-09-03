@@ -1,18 +1,30 @@
-= content_for(:title, "Results | #{@event.name}")
+= content_for(:title, "Results | #{@event_name}")
 =image_tag "OACT-Logo.svg", size: "150x150", align: "left"
-%h1= @event.name
+%h1= @event_name
 %p= @event.date.to_fs(:full_date)
-%p= "Total Participants: #{@event.results.count}"
+%p= "Total Participants: #{@event.results.race_number(@race).count}"
 %p=link_to "Results on Eventor", "#{EVENTOR_URL}/Events/ResultList?eventId=#{@event.eventor_id}"
 %p=link_to "Event Info on Eventor", "#{EVENTOR_URL}/Events/Show/#{@event.eventor_id}"
+
+- if @races.count > 1
+  %br
+  %p
+    - @races.each do |race|
+      = " | " unless race.number == 1
+      - if race.number == @race
+        = race.name
+      - else
+        %a= link_to race.name, results_path(race: race.number, by_class: (@by_class ? true : nil))
+- else
+  %br
 
 - if @by_class
   %p
     ="Results by Class | "
-    %a= link_to "Results by Course"
+    %a= link_to "Results by Course", results_path(race: (@race==1 ? nil : @race))
 - else
   %p
-    %a= link_to "Results by Class", results_path(by_class: true)
+    %a= link_to "Results by Class", results_path(race: (@race==1 ? nil : @race), by_class: true)
     =" | Results by Course"
 
 %br{clear: "left"}

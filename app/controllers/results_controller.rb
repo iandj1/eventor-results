@@ -10,30 +10,33 @@ class ResultsController < ApplicationController
 
   def show
     courses = @event.courses
+    @race = params[:race]&.to_i || 1
+    @races = @event.races # need to show race days on results page
     @results_tables = {}
     @course_lengths = {}
     @control_sequences = {}
     @by_class = params[:by_class] == "true"
+    @event_name = "#{@event.name}#{@races.count == 1 ? "": ": "+@races.find_by(number: @race).name}"
     if @by_class
       # results by class
       courses.each do |course|
-        course.results.distinct.pluck(:gender).each do |gender|
-          course.results.where(gender: gender).distinct.pluck(:age_range).each do |age_range|
+        course.results.race_number(@race).distinct.pluck(:gender).each do |gender|
+          course.results.race_number(@race).where(gender: gender).distinct.pluck(:age_range).each do |age_range|
             next if gender.nil? || age_range.nil?
             gender_name = GENDER_MAP[gender] || gender
             class_name = "#{course.name}: #{gender_name} #{age_range}"
-            @results_tables[class_name] = course.results.where(gender: gender, age_range: age_range).get_results_table
-            @course_lengths[class_name] = course.distance
-            @control_sequences[class_name] = course.control_sequence
+            @results_tables[class_name] = course.results.race_number(@race).where(gender: gender, age_range: age_range).get_results_table
+            @course_lengths[class_name] = course.distance if @race == 1 # eventor doesn't give us lengths for multiday events :(
+            @control_sequences[class_name] = course.control_sequence(@race)
           end
         end
       end
     else
       # results by course
       courses.each do |course|
-        @results_tables[course.name] = course.results.get_results_table
-        @course_lengths[course.name] = course.distance
-        @control_sequences[course.name] = course.control_sequence
+        @results_tables[course.name] = course.results.race_number(@race).get_results_table
+        @course_lengths[course.name] = course.distance if @race == 1 # eventor doesn't give us lengths for multiday events :(
+        @control_sequences[course.name] = course.control_sequence(@race)
       end
     end
   end
@@ -42,10 +45,9 @@ class ResultsController < ApplicationController
   end
 
   def handicap_download
-    puts params
+    race_no = 1 # since we don't get lengths for race 2 and beyond
     courses = @event.courses.find(params[:course].compact_blank)
-    # results = Result.where(course: courses).to_a.sort_by!{ |result| result.handicap_pace }
-    @results = Result.where(course: courses, status: "OK").where.not(time: nil).to_a.sort_by!{ |result| result.handicap_pace }
+    @results = Result.race_number(race_no).where(course: courses, status: "OK").where.not(time: nil).to_a.sort_by!{ |result| result.handicap_pace }
 
     # if params[:format] == "csv"
     respond_to do |format|
@@ -62,7 +64,6 @@ class ResultsController < ApplicationController
       end
 
       format.xml do
-        # stream = render_to_string(:template=>"calculations/show" )
         stream = render_to_string(:handicap)
         send_data(stream, :type=>"text/xml", filename: "#{@event.name} - Handicap.xml")
       end
@@ -75,7 +76,7 @@ class ResultsController < ApplicationController
         GENDER_MAP.keys.each do |gender|
           course_name = course.name.downcase
           next if JUNIOR_LEAGUE_SCORING[course_name].nil? # this shouldn't be possible
-          results = course.results.where(status: "OK", age_range: "Junior", gender: gender).order(:time)
+          results = course.results.race_number(1).where(status: "OK", age_range: "Junior", gender: gender).order(:time)
           placing_map = results.placing_map
           results.each do |result|
             if result.age < 10
@@ -111,12 +112,12 @@ class ResultsController < ApplicationController
     @event = Event.find_by(eventor_id: params[:eventor_id])
     if @event && params[:resetcache] == "yes"
       @event.destroy
-      redirect_to params.permit(:by_class)
+      redirect_to params.permit(:by_class, :race)
       return
     end
     if params[:resetcache] == "all"
       Event.destroy_all
-      redirect_to params.permit(:by_class)
+      redirect_to params.permit(:by_class, :race)
       return
     end
     if not @event

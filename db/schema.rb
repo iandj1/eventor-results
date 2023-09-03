@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_16_052924) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_02_111802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "courses", force: :cascade do |t|
-    t.bigint "event_id"
     t.string "name"
     t.integer "distance"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "event_id"
     t.index ["event_id"], name: "index_courses_on_event_id"
   end
 
@@ -30,6 +30,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_16_052924) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["eventor_id"], name: "index_events_on_eventor_id", unique: true
+  end
+
+  create_table "races", force: :cascade do |t|
+    t.integer "number"
+    t.string "name"
+    t.bigint "event_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_races_on_event_id"
   end
 
   create_table "results", force: :cascade do |t|
@@ -47,11 +56,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_16_052924) do
     t.integer "eventor_id"
     t.string "given_name"
     t.string "family_name"
+    t.bigint "race_id"
     t.index ["age_range"], name: "index_results_on_age_range"
     t.index ["course_id"], name: "index_results_on_course_id"
     t.index ["gender"], name: "index_results_on_gender"
+    t.index ["race_id"], name: "index_results_on_race_id"
   end
 
-  add_foreign_key "courses", "events"
+  add_foreign_key "races", "events"
   add_foreign_key "results", "courses"
+  add_foreign_key "results", "races"
 end

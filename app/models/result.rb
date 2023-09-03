@@ -1,5 +1,8 @@
 class Result < ApplicationRecord
   belongs_to :course
+  belongs_to :race
+
+  scope :race_number, ->(number) { joins(:race).where(race: {number: number}) }
 
   STATUS_MAP = {
     "MissingPunch" => "MP",
@@ -21,10 +24,12 @@ class Result < ApplicationRecord
   # descriptions of statuses built from STATUS_MAP, with spaces added for readability
   STATUS_LOOKUP = STATUS_MAP.invert.transform_values{ |description| description.gsub(/([a-z])([A-Z])/, '\1 \2') }
 
-  def self.create_from_hash(course, result_hash)
+  def self.create_from_hash(course, result_hash, race_lookup)
     birth_date = result_hash.dig("Person", "BirthDate")
     time = result_hash.dig("Result", "Time")&.to_i
     status = result_hash.dig("Result", "Status")
+    race_number = result_hash.dig("Result", "raceNumber")&.to_i || 1
+    race = race_lookup[race_number].first
     age = birth_date && get_age(birth_date, course.event.date)
     @result = Result.create(
       eventor_id: result_hash.dig("Person", "Id"),
@@ -38,7 +43,8 @@ class Result < ApplicationRecord
       gender: result_hash.dig("Person", "sex"),
       age: age,
       age_range: birth_date && get_age_class(age),
-      start_time: result_hash.dig("Result", "StartTime")
+      start_time: result_hash.dig("Result", "StartTime"),
+      race: race
     )
     @result
   end

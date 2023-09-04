@@ -45,10 +45,12 @@ class EventXmlDoc < Nokogiri::XML::SAX::Document
     when ["ResultList", "Event", "Race", "RaceNumber"]
       @race_h[:number] = string
     when ["ResultList", "Event", "Race", "Name"]
-      @race_h[:name] = string.strip
+      @race_h[:name] ||= ''
+      @race_h[:name] += string
 
     when ["ResultList", "ClassResult", "Class", "Name"]
-      @course_h[:name] = string.split(":").first
+      @course_h[:name] ||= ''
+      @course_h[:name] += string
     when ["ResultList", "ClassResult", "Course", "Length"]
       @course_h[:distance] = string
 
@@ -65,9 +67,11 @@ class EventXmlDoc < Nokogiri::XML::SAX::Document
     when ["ResultList", "ClassResult", "PersonResult", "Organisation", "Id"]
       @organisation_h["Id"] = string
     when ["ResultList", "ClassResult", "PersonResult", "Organisation", "Name"]
-      @organisation_h["Name"] = string
+      @organisation_h["Name"] ||= '' # handle ampersands in names
+      @organisation_h["Name"] += string
     when ["ResultList", "ClassResult", "PersonResult", "Organisation", "ShortName"]
-      @organisation_h["ShortName"] = string
+      @organisation_h["ShortName"] ||= '' # handle ampersands in names
+      @organisation_h["ShortName"] += string
     when ["ResultList", "ClassResult", "PersonResult", "Result", "Time"]
       @result_h[:time] = string
     when ["ResultList", "ClassResult", "PersonResult", "Result", "Status"]
@@ -88,9 +92,11 @@ class EventXmlDoc < Nokogiri::XML::SAX::Document
       @race_lookup.values.map{|race| race.update!(event: @event)}
     when ["ResultList", "Event", "Race"]
       @race_h[:event] = @event
+      @race_h[:name]&.strip!
       @race_lookup[@race_h[:number]] = Race.new(@race_h)
     when ["ResultList", "ClassResult"]
       @course_h[:event] = @event
+      @course_h[:name] = @course_h[:name]&.split(":")&.first
       @course = Course.create(@course_h)
       @results.each do |result_h|
         r = Result.new(course: @course)

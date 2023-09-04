@@ -1,6 +1,8 @@
 class Result < ApplicationRecord
   belongs_to :course
   belongs_to :race
+  before_save :set_age_class
+  before_save :shorten_status
 
   scope :race_number, ->(number) { joins(:race).where(race: {number: number}) }
 
@@ -23,31 +25,6 @@ class Result < ApplicationRecord
 
   # descriptions of statuses built from STATUS_MAP, with spaces added for readability
   STATUS_LOOKUP = STATUS_MAP.invert.transform_values{ |description| description.gsub(/([a-z])([A-Z])/, '\1 \2') }
-
-  def self.create_from_hash(course, result_hash, race_lookup)
-    birth_date = result_hash.dig("Person", "BirthDate")
-    time = result_hash.dig("Result", "Time")&.to_i
-    status = result_hash.dig("Result", "Status")
-    race_number = result_hash.dig("Result", "raceNumber")&.to_i || 1
-    race = race_lookup[race_number].first
-    age = birth_date && get_age(birth_date, course.event.date)
-    @result = Result.create(
-      eventor_id: result_hash.dig("Person", "Id"),
-      course: course,
-      given_name: result_hash.dig("Person", "Name", "Given"),
-      family_name: result_hash.dig("Person", "Name", "Family"),
-      organisation: result_hash["Organisation"],
-      time: time,
-      status: STATUS_MAP[status] || status,
-      splits: process_splits(result_hash.dig("Result", "SplitTime"), time),
-      gender: result_hash.dig("Person", "sex"),
-      age: age,
-      age_range: birth_date && get_age_class(age),
-      start_time: result_hash.dig("Result", "StartTime"),
-      race: race
-    )
-    @result
-  end
 
   def self.get_results_table
     valid_results = []
@@ -96,7 +73,7 @@ class Result < ApplicationRecord
         finish_time: result.time
       }
     end
-    # sort by most controls visited, then
+    # sort by most controls visited, then time
     invalid_results.sort_by! do |result|
       [
         - result[:splits].count{|split| split[:interval].present?},
@@ -122,6 +99,49 @@ class Result < ApplicationRecord
 
   def name
     return "#{given_name} #{family_name}"
+  end
+
+  def birth_date=(birth_date)
+    event_date = self.course.event.date
+    self.age = nil if birth_date.nil? || event_date.nil?
+    event_year = event_date.year
+    birth_year = birth_date.to_date.year
+    self.age = event_year - birth_year
+  end
+
+  def xml_splits=(xml_splits)
+    if xml_splits.empty?
+      self.splits = {splits: [], extras: []}
+      return
+    end
+    splits = []
+    extras = []
+    last_time = 0
+    xml_splits.each do |xml_split|
+      control = xml_split["ControlCode"]
+      time = xml_split["Time"]&.to_i
+      split = {
+        control: control,
+        time: time
+      }
+      if xml_split["status"] == "Additional"
+        extras << split
+        next
+      end
+      if time
+        interval = time - last_time
+        last_time = time
+        split[:interval] = interval
+      end
+      splits << split
+    end
+    finish_split = {
+      control: "F",
+      time: self.time
+    }
+    finish_split[:interval] = self.time - last_time if self.time
+    splits << finish_split
+    self.splits = {splits: splits, extras: extras}
   end
 
   private
@@ -165,53 +185,20 @@ class Result < ApplicationRecord
     placing_map
   end
 
-  def self.get_age(birth_date, event_date)
-    return nil if birth_date.nil?
-    event_year = event_date.year
-    birth_year = birth_date.to_date.year
-    event_year - birth_year
-  end
-
-  def self.get_age_class(age)
+  def set_age_class
     case age
+    when nil
+      self.age_range = nil
     when 0..20
-      then "Junior"
+      self.age_range = "Junior"
     when 21..34
-      then "Open"
-    when 35..
-      then "Master"
+      self.age_range = "Open"
+    when 35..nil
+      self.age_range = "Master"
     end
   end
 
-  def self.process_splits(xml_splits, finish_time)
-    return {splits: [], extras: []} if xml_splits.nil?
-    splits = []
-    extras = []
-    last_time = 0
-    xml_splits.each do |xml_split|
-      control = xml_split["ControlCode"]
-      time = xml_split["Time"]&.to_i
-      split = {
-        control: control,
-        time: time
-      }
-      if xml_split["status"] == "Additional"
-        extras << split
-        next
-      end
-      if time
-        interval = time - last_time
-        last_time = time
-        split[:interval] = interval
-      end
-      splits << split
-    end
-    finish_split = {
-      control: "F",
-      time: finish_time
-    }
-    finish_split[:interval] = finish_time - last_time if finish_time
-    splits << finish_split
-    return {splits: splits, extras: extras}
+  def shorten_status
+    self.status = STATUS_MAP[status] || status
   end
 end

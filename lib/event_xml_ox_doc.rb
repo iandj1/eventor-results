@@ -28,16 +28,16 @@ class EventXmlOxDoc < ::Ox::Sax
     end
   end
 
-    def attr(name, value)
-      case @xpath
-      when [:ResultList, :ClassResult, :PersonResult, :Person]
-        @result_h[:gender] = value if name == :sex
-      when [:ResultList, :ClassResult, :PersonResult, :Result]
-        @result_race_no = value if name == :raceNumber
-      when [:ResultList, :ClassResult, :PersonResult, :Result, :SplitTime]
-        @split[:status] = value if name == :status
-      end
+  def attr(name, value)
+    case @xpath
+    when [:ResultList, :ClassResult, :PersonResult, :Person]
+      @result_h[:gender] = value if name == :sex
+    when [:ResultList, :ClassResult, :PersonResult, :Result]
+      @result_race_no = value if name == :raceNumber
+    when [:ResultList, :ClassResult, :PersonResult, :Result, :SplitTime]
+      @split[:status] = value if name == :status
     end
+  end
 
   def text(string)
     case @xpath
@@ -54,7 +54,7 @@ class EventXmlOxDoc < ::Ox::Sax
       @race_h[:name] = string
 
     when [:ResultList, :ClassResult, :Class, :Name]
-      @course_h[:name] = string
+      @course_h[:name] = string&.split(":")&.first
     when [:ResultList, :ClassResult, :Course, :Length]
       @course_h[:distance] = string
 
@@ -96,8 +96,7 @@ class EventXmlOxDoc < ::Ox::Sax
       @race_lookup[@race_h[:number]] = Race.new(@race_h)
     when [:ResultList, :ClassResult]
       @course_h[:event] = @event
-      @course_h[:name] = @course_h[:name]&.split(":")&.first
-      @course = Course.create(@course_h)
+      @course = Course.find_or_create_by(@course_h)
       @results.each do |result_h|
         r = Result.new(course: @course)
         r.update!(result_h)

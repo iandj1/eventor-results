@@ -1,7 +1,6 @@
 class EventXmlDoc < Nokogiri::XML::SAX::Document
   def start_document
     @xpath = []
-    @status = nil
     @event_h = {}
     @race_lookup = {}
   end
@@ -28,7 +27,7 @@ class EventXmlDoc < Nokogiri::XML::SAX::Document
       @splits = []
     when ["ResultList", "ClassResult", "PersonResult", "Result", "SplitTime"]
       @split = {}
-      @split["status"] = "Additional" if attrs["status"] == "Additional"
+      @split[:status] = "Additional" if attrs["status"] == "Additional"
     end
   end
 
@@ -79,9 +78,9 @@ class EventXmlDoc < Nokogiri::XML::SAX::Document
     when ["ResultList", "ClassResult", "PersonResult", "Result", "StartTime"]
       @result_h[:start_time] = string
     when ["ResultList", "ClassResult", "PersonResult", "Result", "SplitTime", "ControlCode"]
-      @split["ControlCode"] = string
+      @split[:control_code] = string
     when ["ResultList", "ClassResult", "PersonResult", "Result", "SplitTime", "Time"]
-      @split["Time"] = string
+      @split[:time] = string
     end
   end
 

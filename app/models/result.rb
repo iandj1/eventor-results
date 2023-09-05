@@ -118,13 +118,13 @@ class Result < ApplicationRecord
     extras = []
     last_time = 0
     xml_splits.each do |xml_split|
-      control = xml_split["ControlCode"]
-      time = xml_split["Time"]&.to_i
+      control = xml_split[:control_code]
+      time = xml_split[:time]&.to_i
       split = {
         control: control,
         time: time
       }
-      if xml_split["status"] == "Additional"
+      if xml_split[:status] == "Additional"
         extras << split
         next
       end

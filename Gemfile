@@ -82,3 +82,4 @@ group :test do
 end
 
 gem "redis", "~> 5.0"
+gem 'ox', '~> 2.4', '>= 2.4.1'

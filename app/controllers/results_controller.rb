@@ -17,6 +17,9 @@ class ResultsController < ApplicationController
     @control_sequences = {}
     @by_class = params[:by_class] == "true"
     @event_name = "#{@event.name}#{@races.count == 1 ? "": ": "+@races.find_by(number: @race).name}"
+    control_sequence_hash = @event.courses.group_by{|course| course.control_sequence(@race)}
+    @dup_courses = control_sequence_hash.any?{|key, value| key.present? && value.length > 1}
+    @merge_courses = params[:merge_courses] == "true"
     if @by_class
       # results by class
       courses.each do |course|
@@ -30,6 +33,19 @@ class ResultsController < ApplicationController
             @control_sequences[class_name] = course.control_sequence(@race)
           end
         end
+      end
+    elsif @merge_courses
+      control_sequence_hash.each do |sequence, courses|
+        next if sequence == []
+        course_name = courses.pluck(:name).join(', ')
+        @results_tables[course_name] = @event.results.where(course: courses).race_number(@race).get_results_table
+        @course_lengths[course_name] = courses.first.distance if @race == 1 # eventor doesn't give us lengths for multiday events :(
+        @control_sequences[course_name] = sequence
+      end
+      control_sequence_hash[[]]&.each do |course|
+        @results_tables[course.name] = course.results.race_number(@race).get_results_table
+        @course_lengths[course.name] = course.distance if @race == 1 # eventor doesn't give us lengths for multiday events :(
+        @control_sequences[course.name] = course.control_sequence(@race)
       end
     else
       # results by course

@@ -12,7 +12,7 @@
     - @races.each do |race|
       = " | " unless race.number == 1
       - if race.number == @race
-        = race.name
+        %strong= race.name
       - else
         %a= link_to race.name, results_path(race: race.number, by_class: (@by_class ? true : nil), merge_courses: (@merge_courses ? true : nil))
 - else
@@ -20,24 +20,23 @@
 
 %p
   - if @by_class
-    = 'Results by Class'
+    %strong Results by Class
   - else
     %a= link_to 'Results by Class', results_path(race: (@race==1 ? nil : @race), by_class: true)
   = '|'
   - if !@by_class && !@merge_courses
-    = 'Results by Course'
+    %strong Results by Course
   - else
     %a= link_to 'Results by Course', results_path(race: (@race==1 ? nil : @race))
   - if @dup_courses || @merge_courses
     = '|'
     - if @merge_courses
-      = 'Results by Merged Courses'
+      %strong Results by Merged Courses
     - else
       %a= link_to 'Results by Merged Courses', results_path(race: (@race==1 ? nil : @race), merge_courses: true)
 
-%br{clear: "left"}
-
 - @results_tables.each do |course_name, results|
+  %br
   %h2= course_name
   %p= "Entries: #{results[:valid].count+results[:invalid].count}"
   - if @course_lengths[course_name].present?

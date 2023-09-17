@@ -1,5 +1,6 @@
 class ResultsController < ApplicationController
   before_action :find_or_load_event
+  caches_action :show, :cache_path => Proc.new { |c| c.results_params }
 
   GENDER_MAP = {
     "F" => "Women",
@@ -128,16 +129,23 @@ class ResultsController < ApplicationController
     @event = Event.find_by(eventor_id: params[:eventor_id])
     if @event && params[:resetcache] == "yes"
       @event.destroy
-      redirect_to params.permit(:by_class, :race)
+      Rails.cache.delete_matched("views*results/#{@eventor_id}*") # glob format is unique to redis. MemoryStore will need regex instead
+      redirect_to results_params
       return
     end
     if params[:resetcache] == "all"
       Event.destroy_all
-      redirect_to params.permit(:by_class, :race)
+      Rails.cache.delete_matched("views*results/*")
+      redirect_to results_params
       return
     end
     if not @event
       @event = Event.load_from_eventor(@eventor_id)
     end
+  end
+
+  protected
+  def results_params
+    params.permit(:eventor_id, :by_class, :race, :merge_courses)
   end
 end

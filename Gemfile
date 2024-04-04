@@ -13,7 +13,7 @@ gem "sprockets-rails"
 gem "pg", "~> 1.1"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 5.0"
+gem "puma", "~> 6.0"
 
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
@@ -50,7 +50,7 @@ gem "bootsnap", require: false
 
 gem 'haml', '~> 6.1', '>= 6.1.1'
 gem "haml-rails", "~> 2.0"
-gem 'open-uri', '~> 0.3.0'
+gem 'open-uri', '~> 0.4.1'
 gem 'csv', '~> 3.2', '>= 3.2.7'
 gem 'rexml', '~> 3.2', '>= 3.2.5'
 

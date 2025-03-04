@@ -64,7 +64,7 @@ class ResultsController < ApplicationController
   def handicap_download
     race_no = 1 # since we don't get lengths for race 2 and beyond
     courses = @event.courses.find(params[:course].compact_blank)
-    @results = Result.race_number(race_no).where(course: courses, status: "OK").where.not(time: nil).to_a.sort_by!{ |result| result.handicap_pace }
+    @results = Result.race_number(race_no).where(course: courses, status: "OK").where.not(time: nil).includes(:course).to_a.sort_by!{ |result| result.handicap_pace }
 
     # if params[:format] == "csv"
     respond_to do |format|

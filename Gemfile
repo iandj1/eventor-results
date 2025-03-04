@@ -1,10 +1,10 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.2.6"
+ruby "3.4.2"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.0.4", ">= 7.0.4.3"
+gem "rails", "~> 7.1"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -50,7 +50,7 @@ gem "bootsnap", require: false
 
 gem 'haml', '~> 6.1', '>= 6.1.1'
 gem "haml-rails", "~> 2.0"
-gem 'open-uri', '~> 0.4.1'
+gem 'open-uri', '~> 0.5.0'
 gem 'csv', '~> 3.2', '>= 3.2.7'
 gem 'rexml', '~> 3.2', '>= 3.2.5'
 

@@ -133,6 +133,11 @@ class ResultsController < ApplicationController
       redirect_to results_params
       return
     end
+    if params[:resetcache] == "redis"
+      Rails.cache.delete_matched("views*results/*")
+      redirect_to results_params
+      return
+    end
     if params[:resetcache] == "all"
       Event.destroy_all
       Rails.cache.delete_matched("views*results/*")

@@ -349,7 +349,7 @@ DEPENDENCIES
   ox (~> 2.4, >= 2.4.1)
   pg (~> 1.1)
   puma (~> 6.0)
-  rails (~> 7.1)
+  rails (~> 7.2)
   redis (~> 5.0)
   rexml (~> 3.2, >= 3.2.5)
   selenium-webdriver

@@ -82,6 +82,6 @@ end
 
 gem "redis", "~> 5.0"
 gem 'hiredis', '~> 0.6.3'
-gem 'connection_pool'
+gem 'connection_pool', "< 3"
 gem 'actionpack-action_caching'
 gem 'ox', '~> 2.4', '>= 2.4.1'

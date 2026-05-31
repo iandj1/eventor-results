@@ -1,10 +1,10 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.4.8"
+ruby "3.4.9"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2"
+gem "rails", "~> 8.1"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -13,7 +13,7 @@ gem "sprockets-rails"
 gem "pg", "~> 1.1"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 6.0"
+gem "puma", "~> 8.0"
 
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
@@ -48,8 +48,8 @@ gem "bootsnap", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
-gem 'haml', '~> 6.1', '>= 6.1.1'
-gem "haml-rails", "~> 2.0"
+gem 'haml', '~> 7.2'
+gem "haml-rails", "~> 3.0"
 gem 'open-uri', '~> 0.5.0'
 gem 'csv', '~> 3.2', '>= 3.2.7'
 gem 'rexml', '~> 3.2', '>= 3.2.5'
@@ -70,7 +70,7 @@ group :development do
   # gem "spring"
 
   gem 'solargraph'
-  gem 'byebug', '~> 11.1', '>= 11.1.3'
+  gem 'byebug', '~> 13.0'
   gem "dockerfile-rails", ">= 1.3"
 end
 
@@ -82,6 +82,6 @@ end
 
 gem "redis", "~> 5.0"
 gem 'hiredis', '~> 0.6.3'
-gem 'connection_pool', "< 3"
+gem 'connection_pool'
 gem 'actionpack-action_caching'
 gem 'ox', '~> 2.4', '>= 2.4.1'
